@@ -5,4 +5,11 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[lib]
+crate-type = ["staticlib"]
+
+[build]
+target = "wasm32-unknown-unknown"
+
 [dependencies]
+ffi-support = "0.4"

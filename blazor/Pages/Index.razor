@@ -1,9 +1,102 @@
-﻿@page "/"
+﻿@using System.Runtime.InteropServices;
+@using BlazorMath.Pages;
+@page "/"
 
-<PageTitle>Index</PageTitle>
+<PageTitle>Buffers</PageTitle>
 
-<h1>Hello, world!</h1>
+<button class="btn btn-primary" @onclick="IntInReturn">Int In Return</button>
+<button class="btn btn-primary" @onclick="IntInOut">Int In Out</button>
+<button class="btn btn-primary" @onclick="ArrayIn">Array In</button>
+<button class="btn btn-primary" @onclick="ArrayInOut">Array In Out</button>
+<button class="btn btn-primary" @onclick="ArrayInReturn">Array In Return</button>
+<button class="btn btn-primary" @onclick="BufferIn">Buffer In</button>
+<button class="btn btn-primary" @onclick="BufferInReturn">Buffer In Return</button>
+<button class="btn btn-primary" @onclick="BufferInOut">Buffer In Out</button>
 
-Welcome to your new app.
+@code {
+    private void IntInReturn()
+    {
+        var result = Native.int_in_return(1);
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+        Console.WriteLine($"Result: {result}");
+    }
+
+    private void IntInOut()
+    {
+        var result = Native.int_in_out(1, out var y);
+
+        Console.WriteLine($"Result: {result}, out value: {y}");
+    }
+
+    private void ArrayIn()
+    {
+        var input = new byte[] { 1, 2, 3 };
+
+        var pinnedArray = GCHandle.Alloc(input, GCHandleType.Pinned);
+        var pointer = pinnedArray.AddrOfPinnedObject();
+
+        var result = Native.array_in(input.Length, pointer);
+
+        Console.WriteLine($"Result: {result}");
+    }
+
+    private void ArrayInOut()
+    {
+        var input = new byte[] { 1, 2, 3 };
+
+        var pinnedArray = GCHandle.Alloc(input, GCHandleType.Pinned);
+        var pointer = pinnedArray.AddrOfPinnedObject();
+
+        Native.array_in_out(input.Length, pointer, out int out_len, out var out_arr);
+
+        var result = new byte[out_len];
+        Marshal.Copy(out_arr, result, 0, out_len);
+
+        // Works when clicked twice, first it all 0s, then it's correct
+        Console.WriteLine($"Length: {out_len}, Ptr: {out_arr}, Data: [{String.Join(", ", result)}]");
+    }
+
+    private void ArrayInReturn()
+    {
+        var input = new byte[] { 1, 2, 3 };
+
+        var pinnedArray = GCHandle.Alloc(input, GCHandleType.Pinned);
+        var pointer = pinnedArray.AddrOfPinnedObject();
+
+        var result = Native.array_in_return(input.Length, pointer);
+
+        Console.WriteLine($"Length: {result}, Ptr: {pointer}");
+    }
+
+    private void BufferIn()
+    {
+        var input = new byte[] { 1, 2, 3 };
+        var buffer = Native.ToByteBuffer(input);
+
+        var result = Native.buffer_in(buffer);
+
+        Console.WriteLine($"Result: {result}");
+    }
+
+    private void BufferInReturn()
+    {
+        var input = new byte[] { 1, 2, 3 };
+        var buffer = Native.ToByteBuffer(input);
+
+        var result = Native.buffer_in_return(buffer);
+
+        Console.WriteLine($"Result: {result.Length}");
+    }
+
+    private void BufferInOut()
+    {
+        var input = new byte[] { 1, 2, 3 };
+        var buffer = Native.ToByteBuffer(input);
+
+        Native.buffer_in_out(buffer, out ByteBuffer out_buffer);
+
+        var result = Native.FromByteBuffer(out_buffer);
+
+        Console.WriteLine($"Length: {result.Length}, Ptr: {out_buffer.Data}, Data: [{String.Join(", ", result)}]");
+    }
+}

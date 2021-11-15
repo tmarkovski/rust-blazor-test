@@ -1,2 +1,6 @@
 
 blazor/obj/
+
+blazor/bin/
+
+.DS_Store
