@@ -8,8 +8,5 @@ edition = "2021"
 [lib]
 crate-type = ["staticlib"]
 
-[build]
-target = "wasm32-unknown-unknown"
-
 [dependencies]
 ffi-support = "0.4"

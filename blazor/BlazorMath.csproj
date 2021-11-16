@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <NativeFileReference Include="../rust/target/wasm32-unknown-unknown/debug/libmath.a" />
+    <NativeFileReference Include="../rust/target/wasm32-unknown-emscripten/debug/libmath.a" />
   </ItemGroup>
 
 </Project>

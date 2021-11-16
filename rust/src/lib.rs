@@ -6,7 +6,7 @@ use ffi_support::ByteBuffer;
 pub extern "C" fn int_in_return(x: i32) -> i32 {
     // uncommenting below line throws, even if
     // the variable or data is not used at all
-    // let data = vec![0, 1, 2];
+    let _data = vec![0, 1, 2];
     x
 }
 
@@ -67,27 +67,30 @@ pub struct BBuffer {
     pub data: *mut u8,
 }
 
+
 #[no_mangle]
-pub extern "C" fn buffer_in_out(buffer: &ByteBuffer, buffer_out: &mut BBuffer) {
+pub extern "C" fn buffer_in_out(buffer: ByteBuffer, buffer_out: &mut ByteBuffer) {
 
     // uncommenting the below line will make this function throw
-    // let data = buffer.as_slice().to_vec();
+    let mut data = buffer.as_slice().to_vec();
+    data.reverse();
+    let res = ByteBuffer::from_vec(data);
 
     // below also throws
     // "Unhandled Promise Rejection: Error: JS object instance with ID NaN does not exist (has it been disposed?)."
     // "TypeError: Buffer is already detached"
-    // let mut result = vec![4u8, 5, 6].into_boxed_slice();
-    // let len = result.len();
-    // let result_ptr = result.as_mut_ptr();
+    let mut result = vec![4u8, 5, 6].into_boxed_slice();
+    let len = result.len();
+    let result_ptr = result.as_mut_ptr();
 
-    // mem::forget(result);
+    mem::forget(result);
 
-    // *buffer_out = BBuffer { len: len as i64, data: result_ptr }
+    *buffer_out = res //BBuffer { len: len as i64, data: result_ptr }
 
     // below line completely hangs the browser
     // let mut data = vec![1, 2, 3, 4, 5];
 
-    let mut data = [1, 2, 3, 4, 5];
-    *buffer_out = BBuffer { len: 0, data: data.as_mut_ptr() }
+    // let mut data = [1, 2, 3, 4, 5];
+    // *buffer_out = BBuffer { len: 0, data: data.as_mut_ptr() }
 }
 
